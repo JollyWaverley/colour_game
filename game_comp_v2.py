@@ -68,6 +68,7 @@ def round_ans(val):
 
 
 # Classes start here
+
 class StartGame:
     """
     Initial Game interface (asks users how many rounds they
@@ -255,7 +256,7 @@ class Play:
 
         else:
             result_text = f"Oops {colour_name} ({score}) is less than the target."
-            result_bg = "#F8CECH"
+            result_bg = "#F8CECF"
             self.all_scores_list.append(0)
 
         self.results_label.config(text=result_text, bg=result_bg)
