@@ -111,7 +111,7 @@ class Stats:
         # sort user scores to find high score...
         user_scores.sort()
 
-        background = "#ffe6cc"
+        background = "#FFE6CC"
         self.stats_box = Toplevel()
 
         # disable help button
@@ -168,7 +168,7 @@ class Stats:
         normal_font = ("Arial", "14")
         comment_font = ("Arial", "13")
 
-        # Label list (text | font | 'Sticky')
+        # Label list text | font | 'Sticky'
         all_stats_strings = [
             ["Statistics", heading_font, ""],
             [success_string, normal_font, "W"],
