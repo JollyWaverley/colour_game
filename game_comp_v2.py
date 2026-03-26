@@ -1,6 +1,5 @@
 import csv
 import random
-from inspect import isfunction
 from tkinter import *
 from functools import partial  # To prevent unwanted windows
 
@@ -85,8 +84,45 @@ class StartGame:
         self.start_frame = Frame(padx=10, pady=10)
         self.start_frame.grid()
 
+        # Strings for labels
+        intro_string = ("In each round you will be invited to choose a colour.  Your goal is "
+                        "to beat the target score and win the round (and keep your points).")
+
+        # choose_string = "Oops - Please choose a whole number more than zero."
+        choose_string = "How many rounds do you want to play?"
+
+        # List of labels to be made (text | font | fg)
+        start_labels_list = [
+            ["Colour Quest", ("Arial", "16", "bold"), None],
+            [intro_string, ("Arial", "12"), None],
+            [choose_string, ("Arial", "12", "bold"), "#009900"]
+        ]
+
+        # Create labels and add them to the reference list...
+
+        start_label_ref = []
+        for count, item in enumerate(start_labels_list):
+            make_label = Label(self.start_frame, text=item[0], font=item[1],
+                               fg=item[2],
+                               wraplength=350, justify="left", pady=10, padx=20)
+            make_label.grid(row=count)
+
+            start_label_ref.append(make_label)
+
+        # extract choice label so that it can be changed to an
+        # error message if necessary.
+        self.choose_label = start_label_ref[2]
+
+        # Frame so that entry box and button can be in the same row.
+        self.entry_area_frame = Frame(self.start_frame)
+        self.entry_area_frame.grid(row=3)
+
+        self.num_rounds_entry = Entry(self.entry_area_frame, font=("Arial", 20, "bold"),
+                                      width=10)
+        self.num_rounds_entry.grid(row=0, column=0, padx=10, pady=10)
+
         # Create play button...
-        self.play_button = Button(self.start_frame, font=("Arial", 16, "bold"),
+        self.play_button = Button(self.entry_area_frame, font=("Arial", 16, "bold"),
                                   fg="#FFFFFF", bg="#0057D8", text="Play", width=10,
                                   command=self.check_rounds)
         self.play_button.grid(row=0, column=1)
@@ -96,9 +132,41 @@ class StartGame:
         Checks users have entered 1 or more rounds
         """
 
-        Play(5)
-        # Hide root window (ie: hide rounds choice window).
-        root.withdraw()
+        # Retrieve temperature to be converted
+        rounds_wanted = self.num_rounds_entry.get()
+
+        # Reset label and entry box (for when users come back to home screen)
+        self.choose_label.config(fg="#009900", font=("Arial", "12", "bold"))
+        self.num_rounds_entry.config(bg="#FFFFFF")
+
+        error = "Oops - Please choose a whole number more than zero."
+        has_errors = "no"
+
+        # checks that amount to be converted is a number above absolute zero
+        try:
+            rounds_wanted = int(rounds_wanted)
+            if rounds_wanted > 0:
+                # Clear entry box and reset instruction label so
+                # that when users play a new game, they don't see an error message.
+                self.num_rounds_entry.delete(0, END)
+                self.choose_label.config(text="How many rounds do you want to play?")
+
+                # Invoke Play Class (and take across number of rounds)
+                Play(rounds_wanted)
+                # Hide root window (ie: hide rounds choice window).
+                root.withdraw()
+
+            else:
+                has_errors = "yes"
+
+        except ValueError:
+            has_errors = "yes"
+
+        # display the error if necessary
+        if has_errors == "yes":
+            self.choose_label.config(text=error, fg="#990000", font=("Arial", "10", "bold"))
+            self.num_rounds_entry.config(bg="#F4CCCC")
+            self.num_rounds_entry.delete(0, END)
 
 
 class Play:
@@ -134,7 +202,7 @@ class Play:
 
 
         # If users press the 'x' on the game window, end the entire game!
-        self.play_box.protocol('WM_DELETE_WINDOW', root.destroy())
+        # self.play_box.protocol('WM_DELETE_WINDOW', root.destroy())
 
         # body font for most labels...
         body_font = ("Arial", "12")
@@ -207,6 +275,14 @@ class Play:
         self.end_game_button = control_ref_list[3]
 
         self.stats_button.config(state=DISABLED)
+
+        # images for use on 'end game' / 'play again' button
+        # self.chicken_image = PhotoImage(file="chicken_30.png")
+        # self.thumbs_up = PhotoImage(file="thumbs_up_30.png")
+
+        # End game button with a chicken image on the right.
+        self.end_game_button.config(text="End Game",
+                                    compound="right")
 
         # Once interface has been created, invoke new
         # round function for first round.
@@ -381,7 +457,7 @@ class Stats:
         # sort user scores to find high score...
         user_scores.sort()
 
-        background = "#FFE6CC"
+        #background = "#FFE6CC"
         self.stats_box = Toplevel()
 
         # If users press cross at top, closes help and
