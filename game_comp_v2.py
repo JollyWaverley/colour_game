@@ -310,7 +310,7 @@ class Play:
         self.all_medians_list.append(median)
         self.all_high_score_list.append(highest)
 
-        # Update heading, and score to beat labels.  "Hide" results label
+        # Update heading, and score to beat labels. "Hide" results label
         self.heading_label.config(text=f"Round {rounds_played + 1} of {rounds_wanted}")
         self.target_label.config(text=f"Target Score: {median}",
                                  font=("Arial", 14, "bold"))
@@ -433,7 +433,6 @@ class DisplayHints:
 
         if self.rounds_played >= 1:
             partner.stats_button.config(sate=NORMAL)
-
 
 
 class Stats:
