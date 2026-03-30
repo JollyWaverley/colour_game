@@ -253,8 +253,8 @@ class Play:
         # list for buttons frame  text / bg / command / width / row / column
         control_button_list = [
             [self.game_frame, "Next Round", "#0057D8", self.new_round, 21, 5, None],
-            [self.hints_stats_frame, "Hints", "#FF8000", "", 10, 0, 0],
-            [self.hints_stats_frame, "Stats", "#333333", "", 10, 0, 1],
+            [self.hints_stats_frame, "Hints", "#FF8000",self.to_hints, 10, 0, 0],
+            [self.hints_stats_frame, "Stats", "#333333",self.to_stats, 10, 0, 1],
             [self.game_frame, "End", "#990000", self.close_play, 21, 7, None]
         ]
 
@@ -296,9 +296,11 @@ class Play:
 
         # retrieve number of rounds played, add one to it and configure heading
         rounds_played = self.rounds_played.get()
+        rounds_played += 1
         self.rounds_played.set(rounds_played)
 
         rounds_wanted = self.rounds_wanted.get()
+
 
         # get round colours and median score...
         self.round_colour_list, median, highest = get_round_colours()
@@ -311,7 +313,7 @@ class Play:
         self.all_high_score_list.append(highest)
 
         # Update heading, and score to beat labels. "Hide" results label
-        self.heading_label.config(text=f"Round {rounds_played + 1} of {rounds_wanted}")
+        self.heading_label.config(text=f"Round {rounds_played} of {rounds_wanted}")
         self.target_label.config(text=f"Target Score: {median}",
                                  font=("Arial", 14, "bold"))
         self.results_label.config(text=f"{'=' * 7}", bg="#F0F0F0")
@@ -362,10 +364,6 @@ class Play:
 
         self.results_label.config(text=result_text, bg=result_bg)
 
-        # printing area to generate test data for stats (delete when done)
-        print("all scores", self.all_scores_list)
-        print("highest scores:", self.all_high_score_list)
-
         # enable stats & next buttons,  disable colour buttons
         self.next_button.config(state=NORMAL)
         self.stats_button.config(state=NORMAL)
@@ -376,8 +374,8 @@ class Play:
 
         if rounds_played == rounds_wanted:
             self.next_button.config(state=DISABLED, text="Game Over")
-            self.end_game_button.config(text="Play Again", bg="#006600", image=self.thumbs_up,
-                                        compound="right", width=280)
+            self.end_game_button.config(text="Play Again", bg="#006600",
+                                        compound="right", width=20)
 
         for item in self.colour_button_ref:
             item.config(state=DISABLED)
@@ -405,6 +403,7 @@ class Play:
                         self.all_medians_list, self.all_high_score_list]
 
         Stats(self, stats_bundle)
+
 class DisplayHints:
 
 
@@ -417,6 +416,7 @@ class DisplayHints:
 
 
 
+
         self.help_box.protocol('WM_DELETE_WINDOW',partial(self.close_hints, partner))
 
 
@@ -426,13 +426,51 @@ class DisplayHints:
 
         self.help_frame.grid()
 
+        self.help_heading_label = Label(self.help_frame,
+                                        text="Help / info",
+                                        font=("Arial", 14, "bold"))
+        self.help_heading_label.grid(row=0)
+
+        help_text = ("The score for each colour relates to its hexadecimal code."
+                     "\nRemember, the hex code for white is"
+                     "#FFFFFF - which is the best possible score."
+                     "\nThe hex code for black is #000000 which is the"
+                     "worst possible score."
+                     "\nThe first colour in the code is red, so if"
+                     "you had to choose between red"
+                     "(#FF000), green (#00FF00) and blue (#000FF), then"
+                     "red would be the best choice."
+                     "\nGood luck!")
+        self.help_text_label = Label(self.help_frame,
+                                     text=help_text, wraplength=350,
+                                     justify="left")
+        self.help_text_label.grid(row=1, padx=10)
+
+        self.dismiss_button = Button(self.help_frame,
+                                     font=("Arial", 12, "bold"),
+                                     text="dismiss", bg="#CC6600",
+                                     fg="#FFFFFF",
+                                     command=partial(self.close_hints, partner))
+        self.dismiss_button.grid(row=2, padx=10, pady=10)
+
+        recolour_list = [self.help_frame, self.help_heading_label,
+                         self.help_text_label]
+
+
+        for item in recolour_list:
+            item.config(bg=background)
+
+
+
     def close_hints(self, partner):
 
         partner.hints_button.config(state=NORMAL)
         partner.end_game_button.config(state=NORMAL)
 
         if self.rounds_played >= 1:
-            partner.stats_button.config(sate=NORMAL)
+            partner.stats_button.config(state=NORMAL)
+
+        self.help_box.destroy()
 
 
 class Stats:
@@ -548,7 +586,7 @@ class Stats:
         # Put help button back to normal...
         partner.stats_button.config(state=NORMAL)
         partner.end_game_button.config(state=NORMAL)
-        partner.stats_button.config(state=NORMAL)
+        partner.hints_button.config(state=NORMAL)
 
         self.stats_box.destroy()
 
